@@ -12,5 +12,8 @@ public:
     ~SMainWindow();
 
 private:
+    void tryOpenWorkspaceFromArguments();
+
+private:
     Ui::SMainWindowClass ui;
 };

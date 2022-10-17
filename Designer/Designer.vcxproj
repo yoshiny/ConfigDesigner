@@ -107,6 +107,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SWorkspace.cpp" />
     <QtRcc Include="SMainWindow.qrc" />
     <QtUic Include="SMainWindow.ui" />
     <QtMoc Include="SMainWindow.h" />
@@ -118,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SApplication.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SWorkspace.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QFile>
+#include <QCommandLineParser>
 
 SApplication::SApplication(int & argc, char ** argv)
 	: QApplication(argc, argv)
@@ -23,6 +24,12 @@ SApplication::SApplication(int & argc, char ** argv)
 }
 
 SApplication::~SApplication() {
+}
+
+QStringList SApplication::GetArguments() {
+	QCommandLineParser parser;
+	parser.process(*this);
+	return parser.positionalArguments();
 }
 
 void SApplication::messageHandler(QtMsgType type, const QMessageLogContext & context, const QString & msg) {
