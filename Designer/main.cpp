@@ -1,9 +1,10 @@
 #include "SMainWindow.h"
-#include <QtWidgets/QApplication>
+
+#include "SApplication.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    SApplication a(argc, argv);
     SMainWindow w;
     w.showMaximized();
     return a.exec();
