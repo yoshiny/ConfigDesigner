@@ -1,0 +1,8 @@
+{
+	"name": "默认工作区",
+	"schema_suffix": ".json",
+	"config_suffix": ".xml",
+	"schema": "schema",
+	"config": "./config",
+	"script": "./script"
+}

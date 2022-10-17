@@ -13,7 +13,7 @@ SApplication::SApplication(int & argc, char ** argv)
 	: QApplication(argc, argv)
 {
 	// 安装日志过滤器
-	qInstallMessageHandler(&SApplication::messageHandler);
+	qInstallMessageHandler(&SApplication::MessageHandler);
 
 	// 增大可打开文件句柄数量
 	if (_getmaxstdio() < 1024) {
@@ -32,7 +32,16 @@ QStringList SApplication::GetArguments() {
 	return parser.positionalArguments();
 }
 
-void SApplication::messageHandler(QtMsgType type, const QMessageLogContext & context, const QString & msg) {
+bool SApplication::OpenWorkspace(QString settings_file) {
+	SWorkspaceSettings settings = SWorkspaceSettings::Parse(settings_file);
+	if (!settings.IsValid()) {
+		return false;
+	}
+	workspace_.SetupSettings(settings);
+	return true;
+}
+
+void SApplication::MessageHandler(QtMsgType type, const QMessageLogContext & context, const QString & msg) {
 	QString prefix = QLatin1String("Unknown");
 	switch (type) {
 	case QtDebugMsg:

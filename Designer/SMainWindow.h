@@ -12,7 +12,12 @@ public:
     ~SMainWindow();
 
 private:
-    void tryOpenWorkspaceFromArguments();
+    void TryOpenWorkspaceFromArguments();
+    void LoadWorkspace();
+
+private slots:
+    void on_action_about_Qt_triggered();
+    void on_action_exit_triggered();
 
 private:
     Ui::SMainWindowClass ui;

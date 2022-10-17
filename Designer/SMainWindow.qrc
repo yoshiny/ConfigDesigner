@@ -1,4 +1,5 @@
 <RCC>
-    <qresource prefix="SMainWindow">
-    </qresource>
+  <qresource prefix="/">
+    <file>image/qtlogo.svg</file>
+  </qresource>
 </RCC>

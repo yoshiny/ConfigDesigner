@@ -13,9 +13,10 @@ public:
 public:
 	QStringList GetArguments();
 	SWorkspace &GetWorkspace() { return workspace_; }
+	bool OpenWorkspace(QString settings_file);
 
 private:
-	static void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+	static void MessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 private:
 	SWorkspace workspace_;

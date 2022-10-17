@@ -8,80 +8,98 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+SWorkspaceSettings SWorkspaceSettings::Parse(QString setting_file) {
+	SWorkspaceSettings settings;
+
+	do
+	{
+		QFileInfo setting_file_info(setting_file);
+		if (!setting_file_info.isFile()) {
+			qWarning() << setting_file << "is neither exist or a file";
+			break;
+		}
+
+		setting_file = setting_file_info.absoluteFilePath();
+
+		QFile json_file(setting_file);
+		if (!json_file.open(QIODevice::ReadOnly)) {
+			qWarning() << "Couldn't open workspace file:" << setting_file;
+			break;
+		}
+
+		QByteArray json_data = json_file.readAll();
+		QJsonParseError parse_error;
+		QJsonDocument json_doc = QJsonDocument::fromJson(json_data, &parse_error);
+		if (json_doc.isNull()) {
+			qWarning("Workspace file %s parse error", setting_file);
+			qWarning() << parse_error.errorString();
+			break;
+		}
+
+		QJsonObject jo = json_doc.object();
+		if (jo.isEmpty()) {
+			qWarning("Workspace file %s format error", setting_file);
+			break;
+		}
+
+		// 工作区名称
+		if (QJsonValue jv = jo.value(QLatin1String("name")); jv.isString()) {
+			settings.name_ = jv.toString();
+		}
+		if (settings.name_.isEmpty()) {
+			settings.name_ = setting_file;
+		}
+
+		// 相关后缀
+		auto parse_suffix = [&jo](QString &suffix_setting, QLatin1String json_key) {
+			if (QJsonValue jv = jo.value(json_key); jv.isString()) {
+				if (QString suffix = jv.toString(); !suffix.isEmpty()) {
+					suffix_setting = suffix;
+					if (!suffix_setting.startsWith(QLatin1Char('.'))) {
+						suffix_setting.prepend(QLatin1Char('.'));
+					}
+				}
+			}
+		};
+		parse_suffix(settings.schema_suffix_, QLatin1String("schema_suffix"));
+		parse_suffix(settings.config_suffix_, QLatin1String("config_suffix"));
+
+		// 相关路径
+		QString setting_file_folder = setting_file_info.absolutePath();
+		auto parse_folder = [&jo, &setting_file_info](QString &folder_setting, QLatin1String json_key) {
+			if (QJsonValue jv = jo.value(json_key); jv.isString()) {
+				QString folder_path = jv.toString();
+				if (QDir::isRelativePath(folder_path)) {
+					folder_path.prepend(QLatin1Char('/')).prepend(setting_file_info.absolutePath());
+				}
+				if (QDir folder_dir(folder_path); folder_dir.exists()) {
+					folder_setting = QDir::cleanPath(folder_dir.absolutePath());
+				}
+			}
+		};
+		parse_folder(settings.schema_folder_, QLatin1String("schema"));
+		parse_folder(settings.config_folder_, QLatin1String("config"));
+		parse_folder(settings.script_folder_, QLatin1String("script"));
+
+		// 标记解析成功
+		settings.setting_file_ = setting_file;
+	} while (false);
+
+	return settings;
+}
+
 SWorkspace::SWorkspace() {}
 
 SWorkspace::~SWorkspace() {}
 
-bool SWorkspace::Open(QString file_path) {
-	QFile json_file(file_path);
-	if (!json_file.open(QIODevice::ReadOnly)) {
-		qWarning() << "Couldn't open workspace file:" << file_path;
-		return false;
+void SWorkspace::SetupSettings(const SWorkspaceSettings & settings) {
+	// 释放旧数据
+	if (settings_.IsValid()) {
 	}
 
-	QByteArray json_data = json_file.readAll();
-	QJsonParseError parse_error;
-	QJsonDocument json_doc = QJsonDocument::fromJson(json_data, &parse_error);
-	if (json_doc.isNull()) {
-		qWarning("Workspace file %s parse error", file_path);
-		qWarning() << parse_error.errorString();
-		return false;
-	}
-
-	QJsonObject jo = json_doc.object();
-	if (jo.isEmpty()) {
-		qWarning("Workspace file %s format error", file_path);
-		return false;
-	}
-
-	// 读取工作区数据
-	QFileInfo file_info(file_path);
-	QString file_folder = file_info.absolutePath();
-
-	QString name;
-	if (QJsonValue jv = jo.value(QLatin1String("name")); jv.isString()) {
-		name = jv.toString();
-	}
-	if (name.isEmpty()) {
-		name = file_path;
-	}
-
-	QStringList schema_folders;
-	if (QJsonValue jv = jo.value(QLatin1String("schemas")); jv.isArray()) {
-		for (auto v : jv.toArray()) {
-			QString schema_path = v.toString();
-			if (QDir::isRelativePath(schema_path)) {
-				schema_path.prepend("/").prepend(file_folder);
-			}
-			if (QDir schema_dir(schema_path); schema_dir.exists()) {
-				schema_folders << schema_dir.absolutePath();
-			}
-		}
-	}
-
-	QStringList config_folders;
-	if (QJsonValue jv = jo.value(QLatin1String("configs")); jv.isArray()) {
-		for (auto v : jv.toArray()) {
-			QString config_path = v.toString();
-			if (QDir::isRelativePath(config_path)) {
-				config_path.prepend("/").prepend(file_folder);
-			}
-			if (QDir config_dir(config_path); config_dir.exists()) {
-				config_folders << config_dir.absolutePath();
-			}
-		}
-	}
-
-	// 销毁原有数据
-	if (IsValid()) {
-	}
-
-	// 更新数据
-	valid_ = true;
-	file_path_ = file_path;
-	name_ = name;
-	schema_folder_list_ = schema_folders;
-	config_folder_list_ = config_folders;
-
-	return true;
+	// 更新设置
+	settings_ = settings;
 }
+
+
+
