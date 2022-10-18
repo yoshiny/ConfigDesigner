@@ -55,6 +55,27 @@
     <ClCompile Include="SWorkspace.cpp">
       <Filter>Data</Filter>
     </ClCompile>
+    <ClCompile Include="SConfigManager.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SConfig.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SSchema.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SSheet.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SProperty.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SPropertyManager.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SEnumMeta.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SApplication.h">
@@ -63,6 +84,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SWorkspace.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SConfigManager.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SSchema.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SSheet.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SConfig.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SProperty.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SPropertyManager.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SEnumMeta.h">
       <Filter>Data</Filter>
     </ClInclude>
   </ItemGroup>

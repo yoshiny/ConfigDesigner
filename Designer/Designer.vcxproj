@@ -107,6 +107,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SConfig.cpp" />
+    <ClCompile Include="SConfigManager.cpp" />
+    <ClCompile Include="SEnumMeta.cpp" />
+    <ClCompile Include="SProperty.cpp" />
+    <ClCompile Include="SPropertyManager.cpp" />
+    <ClCompile Include="SSchema.cpp" />
+    <ClCompile Include="SSheet.cpp" />
     <ClCompile Include="SWorkspace.cpp" />
     <QtRcc Include="SMainWindow.qrc" />
     <QtUic Include="SMainWindow.ui" />
@@ -121,6 +128,13 @@
     <QtMoc Include="SApplication.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SConfig.h" />
+    <ClInclude Include="SConfigManager.h" />
+    <ClInclude Include="SEnumMeta.h" />
+    <ClInclude Include="SProperty.h" />
+    <ClInclude Include="SPropertyManager.h" />
+    <ClInclude Include="SSchema.h" />
+    <ClInclude Include="SSheet.h" />
     <ClInclude Include="SWorkspace.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
