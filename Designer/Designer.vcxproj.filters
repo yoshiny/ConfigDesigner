@@ -76,10 +76,22 @@
     <ClCompile Include="SEnumMeta.cpp">
       <Filter>Data</Filter>
     </ClCompile>
+    <ClCompile Include="SValue.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SField.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SEntry.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SApplication.h">
       <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SPropertyManager.h">
+      <Filter>Data</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -101,10 +113,16 @@
     <ClInclude Include="SProperty.h">
       <Filter>Data</Filter>
     </ClInclude>
-    <ClInclude Include="SPropertyManager.h">
+    <ClInclude Include="SEnumMeta.h">
       <Filter>Data</Filter>
     </ClInclude>
-    <ClInclude Include="SEnumMeta.h">
+    <ClInclude Include="SValue.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SField.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SEntry.h">
       <Filter>Data</Filter>
     </ClInclude>
   </ItemGroup>

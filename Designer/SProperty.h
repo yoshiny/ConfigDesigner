@@ -59,7 +59,7 @@ public:
 		return ModeMeta().Name2Value(name);
 	}
 
-	enum class EType {
+	enum class ERole {
 		kName = 0,
 		kTitle,
 		kGroup,
@@ -75,53 +75,51 @@ public:
 	};
 
 private:
-	static SEnumMeta& TypeMeta() {
+	static SEnumMeta& RoleMeta() {
 		static SEnumMeta mt = SEnumMeta()
-			.Add((int)EType::kName, QLatin1String("Name"), QObject::tr("名称"))
-			.Add((int)EType::kTitle, QLatin1String("Title"), QObject::tr("标题"))
-			.Add((int)EType::kGroup, QLatin1String("Group"), QObject::tr("分组"))
-			.Add((int)EType::kDesc, QLatin1String("Desc"), QObject::tr("描述"))
-			.Add((int)EType::kReadOnly, QLatin1String("ReadOnly"), QObject::tr("只读"))
-			.Add((int)EType::kUnique, QLatin1String("Unique"), QObject::tr("唯一"))
-			.Add((int)EType::kValue, QLatin1String("Value"), QObject::tr("值"))
-			.Add((int)EType::kMode, QLatin1String("Mode"), QObject::tr("模式"))
-			.Add((int)EType::kDefault, QLatin1String("Default"), QObject::tr("默认值"))
-			.Add((int)EType::kConstraint, QLatin1String("Constraint"), QObject::tr("约束"))
-			.Add((int)EType::kEnableCond, QLatin1String("EnableCond"), QObject::tr("启用条件"))
+			.Add((int)ERole::kName, QLatin1String("Name"), QObject::tr("名称"))
+			.Add((int)ERole::kTitle, QLatin1String("Title"), QObject::tr("标题"))
+			.Add((int)ERole::kGroup, QLatin1String("Group"), QObject::tr("分组"))
+			.Add((int)ERole::kDesc, QLatin1String("Desc"), QObject::tr("描述"))
+			.Add((int)ERole::kReadOnly, QLatin1String("ReadOnly"), QObject::tr("只读"))
+			.Add((int)ERole::kUnique, QLatin1String("Unique"), QObject::tr("唯一"))
+			.Add((int)ERole::kValue, QLatin1String("Value"), QObject::tr("值"))
+			.Add((int)ERole::kMode, QLatin1String("Mode"), QObject::tr("模式"))
+			.Add((int)ERole::kDefault, QLatin1String("Default"), QObject::tr("默认值"))
+			.Add((int)ERole::kConstraint, QLatin1String("Constraint"), QObject::tr("约束"))
+			.Add((int)ERole::kEnableCond, QLatin1String("EnableCond"), QObject::tr("启用条件"))
 			;
 		return mt;
 	}
 
 public:
-	static QLatin1String TypeName(EType type) {
-		return TypeMeta().Value2Name((int)type);
+	static QLatin1String RoleName(ERole role) {
+		return RoleMeta().Value2Name((int)role);
 	}
 
-	static QString TypeTitle(EType type) {
-		return TypeMeta().Value2Title((int)type);
+	static QString RoleTitle(ERole role) {
+		return RoleMeta().Value2Title((int)role);
 	}
 
-	static int TypeValue(QLatin1String name) {
-		return TypeMeta().Name2Value(name);
+	static int RoleValue(QLatin1String name) {
+		return RoleMeta().Name2Value(name);
 	}
 public:
-	SProperty(EType prop_type, int value_type )
-		: prop_type_(prop_type)
-		, value_type_(value_type)
-	{}
+	SProperty(SPropertyManager *prop_manager, ERole prop_role);
 
 public:
-	EType GetPropType() const { return prop_type_; }
-	int GetValueType() const { return value_type_; }
+	ERole GetRole() const { return role_; }
 
-	QString GetValueDisplay() const { return value_display_; }
-	QString GetValueText() const { return value_.toString(); }
 	QVariant GetValue() const { return value_; }
 	void SetValue(QVariant value) { value_ = value; }
 	bool ChangeValue(QVariant value);
 
+	int GetValueType() const { return value_.userType(); }
+	QString GetValueDisplay() const { return value_display_; }
+	QString GetValueText() const;
+
 	bool IsDirty() const;
-	void ClearDirty() const;
+	void ClearDirty();
 
 	bool IsValid() const { return value_valid_; }
 	void SetValid(bool valid) { value_valid_ = valid; }
@@ -129,14 +127,21 @@ public:
 	bool IsInvalidate() const { return value_invalidate_; }
 	bool SetInvalidate(bool invalidate) { value_invalidate_ = invalidate; }
 
+	QString GetValueTips() const { return value_tips_; }
 private:
-	EType prop_type_{EType::kValue};
-	int value_type_{0};
+	SPropertyManager *prop_manager_{ nullptr };
+	const ERole role_;
 	QVariant value_;
 	QString value_display_;
 	QString value_tips_;
 	bool value_invalidate_{true};
 	bool value_valid_{false};
-	SPropertyManager *prop_manager_{ nullptr };
 };
 
+inline uint qHash(const SProperty::EMode &key, uint seed) {
+	return qHash((int)key, seed);
+}
+
+inline uint qHash(const SProperty::ERole &key, uint seed) {
+	return qHash((int)key, seed);
+}
