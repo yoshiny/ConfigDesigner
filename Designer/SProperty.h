@@ -116,7 +116,6 @@ public:
 
 	int GetValueType() const { return value_.userType(); }
 	QString GetValueDisplay() const { return value_display_; }
-	QString GetValueText() const;
 
 	bool IsDirty() const;
 	void ClearDirty();
