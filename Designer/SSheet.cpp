@@ -12,10 +12,10 @@ SSheet::SSheet(SConfig * config, EType type)
 	, type_(type)
 {
 	auto &prop_manager = GetPropertyManager();
-	name_ = prop_manager.AssignProperty(SProperty::ERole::kValue);
-	title_ = prop_manager.AssignProperty(SProperty::ERole::kValue);
-	index_ = prop_manager.AssignProperty(SProperty::ERole::kValue);
-	props_ = prop_manager.AssignProperty(SProperty::ERole::kValue);
+	name_ = prop_manager.AssignProperty(SProperty::kValueRole);
+	title_ = prop_manager.AssignProperty(SProperty::kValueRole);
+	index_ = prop_manager.AssignProperty(SProperty::kValueRole);
+	props_ = prop_manager.AssignProperty(SProperty::kValueRole);
 }
 
 SSheet::~SSheet() {

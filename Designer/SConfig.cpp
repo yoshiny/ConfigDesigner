@@ -9,11 +9,11 @@ SConfig::SConfig(QString file_path, EType type)
 	: type_(type)
 	, file_path_(file_path)
 {
-	title_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
-	doc_link_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
-	tag_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
-	props_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
-	actions_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
+	title_ = property_manager_.AssignProperty(SProperty::kValueRole);
+	doc_link_ = property_manager_.AssignProperty(SProperty::kValueRole);
+	tag_ = property_manager_.AssignProperty(SProperty::kValueRole);
+	props_ = property_manager_.AssignProperty(SProperty::kValueRole);
+	actions_ = property_manager_.AssignProperty(SProperty::kValueRole);
 }
 
 SConfig::~SConfig() {

@@ -5,15 +5,17 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QJsonValue>
 
 #include "SField.h"
+#include "SValue.h"
 
 SSchema::SSchema(QString file_path)
 	: file_path_(file_path)
 {
-	name_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
-	title_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
-	desc_ = property_manager_.AssignProperty(SProperty::ERole::kValue);
+	name_ = property_manager_.AssignProperty(SProperty::kValueRole);
+	title_ = property_manager_.AssignProperty(SProperty::kValueRole);
+	desc_ = property_manager_.AssignProperty(SProperty::kValueRole);
 }
 
 SSchema::~SSchema() {
@@ -50,16 +52,21 @@ bool SSchema::Save() {
 	for (auto field : field_list_) {
 		QJsonObject jo_field;
 
-		jo_field[QLatin1String("Name")] = field->GetName();
-		jo_field[QLatin1String("Title")] = field->GetTitle();
-		jo_field[QLatin1String("Group")] = field->GetGroup();
-		jo_field[QLatin1String("ReadOnly")] = field->IsReadOnly();
-		jo_field[QLatin1String("Unique")] = field->IsUnique();
-		jo_field[QLatin1String("Desc")] = field->GetDesc();
-		jo_field[QLatin1String("Mode")] = SProperty::ModeName(field->GetMode());
-		jo_field[QLatin1String("Default")] = field->GetDefault();
-		jo_field[QLatin1String("EnableCond")] = field->GetEnableCond();
-		jo_field[QLatin1String("Constraint")] = field->GetProperty(SProperty::ERole::kConstraint)->GetValueText();
+		auto roles = {SProperty::kNameRole
+					 ,SProperty::kTitleRole
+					 ,SProperty::kGroupRole
+					 ,SProperty::kReadOnlyRole
+					 ,SProperty::kUniqueRole
+					 ,SProperty::kDescRole
+					 ,SProperty::kTypeRole
+					 ,SProperty::kDefaultRole
+					 ,SProperty::kEnableCondRole
+					 ,SProperty::kConstraintRole
+		};
+
+		for (auto role : roles) {
+			jo_field[SProperty::RoleName(role)] = field->GetPropertyJsonValue(role);
+		}
 
 		ja_fields << jo_field;
 	}

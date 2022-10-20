@@ -3,6 +3,10 @@
 #include <QVariant>
 #include <QString>
 #include <QDateTime>
+#include <QJsonValue>
+
+QJsonValue QVariant2QJsonValue(QVariant variant);
+QString QVariant2QString(QVariant variant);
 
 struct SBooleanBox {
 	static bool FromString(QString str) {
@@ -17,7 +21,6 @@ struct SBooleanBox {
 };
 
 struct SValue {
-	
 };
 
 template <typename T>
@@ -34,19 +37,32 @@ struct SValueBasic : public SValue {
 
 			suc = QMetaType::registerConverter<T, QString>();
 			Q_ASSERT(suc);
+
+			suc = QMetaType::registerConverter<T, QJsonValue>();
+			Q_ASSERT(suc);
 			return reg;
 		}();
 	}
 
-	// 定义QVariant转换操作符
+	// 定义QVariant转换运算符，子类无需重写
 	operator QVariant() const {
 		auto impl = static_cast<const T *>(this);
 		return QVariant::fromValue<T>(*impl);
 	}
 
-	// 子类必须自定定义QString转换操作符
+	// 定义QString转换运算符，子类必须实现ToStirng方法
+	operator QString() const {
+		auto impl = static_cast<const T *>(this);
+		return impl->ToString();
+	}
 
-	// 定义比较运算符
+	// 定义QJsonValue转换运算符，子类必须实现ToJsonValue方法
+	operator QJsonValue() const{
+		auto impl = static_cast<const T *>(this);
+		return impl->ToJsonValue();
+	}
+
+	// 定义比较运算符，子类可根据需要重写
 	bool operator< (const T &that) const { return QString(*static_cast<const T *>(this)) < QString(that); }
 	bool operator==(const T &that) const { return QString(*static_cast<const T *>(this)) == QString(that); }
 };
