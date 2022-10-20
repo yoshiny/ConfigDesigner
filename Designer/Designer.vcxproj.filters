@@ -76,7 +76,7 @@
     <ClCompile Include="SEnumMeta.cpp">
       <Filter>Data</Filter>
     </ClCompile>
-    <ClCompile Include="SValue.cpp">
+    <ClCompile Include="SConstraint.cpp">
       <Filter>Data</Filter>
     </ClCompile>
     <ClCompile Include="SField.cpp">
@@ -116,7 +116,7 @@
     <ClInclude Include="SEnumMeta.h">
       <Filter>Data</Filter>
     </ClInclude>
-    <ClInclude Include="SValue.h">
+    <ClInclude Include="SConstraint.h">
       <Filter>Data</Filter>
     </ClInclude>
     <ClInclude Include="SField.h">

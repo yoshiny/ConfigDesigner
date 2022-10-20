@@ -5,7 +5,6 @@
 
 #include "SConfig.h"
 #include "SField.h"
-#include "SValue.h"
 
 SSheet::SSheet(SConfig * config, EType type)
 	: config_(config)

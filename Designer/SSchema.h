@@ -14,11 +14,12 @@ public:
 
 public:
 	QString GetGuid() const;
-	QString GetName() const { return name_->GetValue().toString(); }
-	QString GetTitle() const { return title_->GetValue().toString(); }
-	QString GetDesc() const { return desc_->GetValue().toString(); }
+	QString GetName() const;
+	QString GetTitle() const;
+	QString GetDesc() const;
 
 	const QList<SField*>& GetFields() const { return field_list_; }
+	SPropertyManager &GetPropertyManager() { return property_manager_; }
 
 public:
 	bool Load();

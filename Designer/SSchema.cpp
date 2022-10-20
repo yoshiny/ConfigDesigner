@@ -8,7 +8,6 @@
 #include <QJsonValue>
 
 #include "SField.h"
-#include "SValue.h"
 
 SSchema::SSchema(QString file_path)
 	: file_path_(file_path)
@@ -31,8 +30,59 @@ QString SSchema::GetGuid() const {
 	return guid_;
 }
 
+QString SSchema::GetName() const {
+	return name_->GetStringValue();
+}
+
+QString SSchema::GetTitle() const {
+	return title_->GetStringValue();
+}
+
+QString SSchema::GetDesc() const {
+	return desc_->GetStringValue();
+}
+
 bool SSchema::Load() {
-	return false;
+	QFile file(file_path_);
+	if (!file.open(QIODevice::ReadOnly)) {
+		// TODO log error
+		return false;
+	}
+
+	QByteArray json_data = file.readAll();
+	QJsonParseError parse_error;
+	QJsonDocument json_doc = QJsonDocument::fromJson(json_data, &parse_error);
+	if (json_doc.isNull()) {
+		qCritical("%s parse error:", file_path_);
+		qCritical() << parse_error.errorString();
+		return false;
+	}
+
+	QJsonObject jo_root = json_doc.object();
+	if (jo_root.isEmpty()) {
+		qCritical("%s content error", file_path_);
+		return false;
+	}
+
+	guid_ = jo_root[QLatin1String("Guid")].toString();
+	name_->SetValue(jo_root[QLatin1String("Name")].toString());
+	title_->SetValue(jo_root[QLatin1String("Title")].toString());
+	desc_->SetValue(jo_root[QLatin1String("Desc")].toString());
+
+	QJsonArray ja_fields = jo_root[QLatin1String("Fields")].toArray();
+	for (auto it : ja_fields) {
+		QJsonObject jo_field = it.toObject();
+		auto field = new SField(this);
+		for (auto role : SField::GetFieldPropertyRoles()) {
+			auto prop = field->GetProperty(role);
+			prop->SetValue(jo_field[SProperty::RoleName(role)].toVariant());
+		}
+
+		field_list_ << field;
+	}
+
+	property_manager_.ClearBackValues();
+	return true;
 }
 
 bool SSchema::Save() {
@@ -44,27 +94,15 @@ bool SSchema::Save() {
 
 	QJsonObject jo_root;
 	jo_root[QLatin1String("Guid")] = GetGuid();
-	jo_root[QLatin1String("Name")] = GetName();
-	jo_root[QLatin1String("Title")] = GetTitle();
-	jo_root[QLatin1String("Desc")] = GetDesc();
+	jo_root[QLatin1String("Name")] = name_->GetJsonValue();
+	jo_root[QLatin1String("Title")] = title_->GetJsonValue();
+	jo_root[QLatin1String("Desc")] = desc_->GetJsonValue();
 
 	QJsonArray ja_fields;
 	for (auto field : field_list_) {
 		QJsonObject jo_field;
 
-		auto roles = {SProperty::kNameRole
-					 ,SProperty::kTitleRole
-					 ,SProperty::kGroupRole
-					 ,SProperty::kReadOnlyRole
-					 ,SProperty::kUniqueRole
-					 ,SProperty::kDescRole
-					 ,SProperty::kTypeRole
-					 ,SProperty::kDefaultRole
-					 ,SProperty::kEnableCondRole
-					 ,SProperty::kConstraintRole
-		};
-
-		for (auto role : roles) {
+		for (auto role : SField::GetFieldPropertyRoles()) {
 			jo_field[SProperty::RoleName(role)] = field->GetPropertyJsonValue(role);
 		}
 

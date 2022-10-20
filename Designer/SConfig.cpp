@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <QUuid>
 
-#include "SValue.h"
 
 SConfig::SConfig(QString file_path, EType type)
 	: type_(type)

@@ -1,86 +1,89 @@
 #include "SField.h"
 
-#include "SSheet.h"
 #include "SPropertyManager.h"
-#include "SValue.h"
+#include "SSchema.h"
 
-SField::SField(SSheet * sheet)
-    : sheet_(sheet)
+SField::SField(SSchema *schema)
+	: schema_(schema)
 {
-    auto &prop_manager = GetPropertyManager();
-    for (auto role : {SProperty::kNameRole
-                    , SProperty::kTitleRole
-                    , SProperty::kGroupRole
-                    , SProperty::kDescRole
-                    , SProperty::kReadOnlyRole
-                    , SProperty::kUniqueRole
-                    , SProperty::kTypeRole
-                    , SProperty::kDefaultRole
-                    , SProperty::kConstraintRole
-                    , SProperty::kEnableCondRole
-                    }
-        )
-    {
-        AddProperty(prop_manager.AssignProperty(role));
-    }
+	auto &prop_manager = GetPropertyManager();
+	for (auto role : GetFieldPropertyRoles()) {
+		AddProperty(prop_manager.AssignProperty(role));
+	}
 
-    ChangePropertyValue(SProperty::kReadOnlyRole, false);
-    ChangePropertyValue(SProperty::kUniqueRole, false);
-    ChangePropertyValue(SProperty::kTypeRole, SProperty::kStringType);
+	ChangePropertyValue(SProperty::kReadOnlyRole, false);
+	ChangePropertyValue(SProperty::kUniqueRole, false);
 }
 
 SField::~SField() {
-    auto &prop_manager = GetPropertyManager();
-    for (auto it = properties_.constBegin(); it != properties_.constEnd(); ++it) {
-        prop_manager.RecoverProperty(it.value());
-    }
-    properties_.clear();
+	auto &prop_manager = GetPropertyManager();
+	for (auto it = properties_.constBegin(); it != properties_.constEnd(); ++it) {
+		prop_manager.RecoverProperty(it.value());
+	}
+	properties_.clear();
+}
+
+const QList<SProperty::ERole>& SField::GetFieldPropertyRoles() {
+	static QList<SProperty::ERole> roles = {
+					  SProperty::kNameRole
+					, SProperty::kTitleRole
+					, SProperty::kGroupRole
+					, SProperty::kDescRole
+					, SProperty::kReadOnlyRole
+					, SProperty::kUniqueRole
+					, SProperty::kConstraintRole
+	};
+	return roles;
 }
 
 SPropertyManager & SField::GetPropertyManager() const {
-    return sheet_->GetPropertyManager();
-}
-
-SProperty::EType SField::GetType() const {
-    return (SProperty::EType)GetPropertyValue(SProperty::kTypeRole).toInt();
+	return schema_->GetPropertyManager();
 }
 
 SProperty * SField::GetProperty(SProperty::ERole role) const {
-    return properties_.value(role, nullptr);
+	return properties_.value(role, nullptr);
 }
 
 QVariant SField::GetPropertyValue(SProperty::ERole role) const {
-    auto prop = properties_.value(role, nullptr);
-    return prop ? prop->GetValue() : QVariant();
+	auto prop = properties_.value(role, nullptr);
+	return prop ? prop->GetValue() : QVariant();
+}
+
+QString SField::GetPropertyDisplayValue(SProperty::ERole role) const {
+	auto prop = properties_.value(role, nullptr);
+	return prop ? prop->GetDisplayValue() : QString();
 }
 
 QString SField::GetPropertyStringValue(SProperty::ERole role) const {
-    return QVariant2QString(GetPropertyValue(role));
+	auto prop = properties_.value(role, nullptr);
+	return prop ? prop->GetDisplayValue() : QString();
 }
 
 QJsonValue SField::GetPropertyJsonValue(SProperty::ERole role) const {
-    return QVariant2QJsonValue(GetPropertyValue(role));
+	auto prop = properties_.value(role, nullptr);
+	return prop ? prop->GetJsonValue() : QString();
+}
+
+SConstraint::EConstraintType SField::GetConstraintType() const {
+	return SConstraint::kStringType;
 }
 
 bool SField::ChangePropertyValue(SProperty::ERole role, QVariant value) {
-    if (auto prop = properties_.value(role, nullptr)) {
-        if (prop->ChangeValue(value)) {
-            if (role == SProperty::kTypeRole) {
-                // 刷新默认值和约束属性
-            }
-            return true;
-        }
-    }
-    return false;
+	if (auto prop = properties_.value(role, nullptr)) {
+		if (prop->ChangeValue(value)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 bool SField::IsPropertyDirty(SProperty::ERole role) const {
-    if (auto prop = properties_.value(role, nullptr)) {
-        return prop->IsDirty();
-    }
-    return false;
+	if (auto prop = properties_.value(role, nullptr)) {
+		return prop->IsDirty();
+	}
+	return false;
 }
 
 void SField::AddProperty(SProperty * prop) {
-    properties_.insert(prop->GetRole(), prop);
+	properties_.insert(prop->GetRole(), prop);
 }

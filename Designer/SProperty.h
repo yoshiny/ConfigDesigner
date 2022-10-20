@@ -3,6 +3,7 @@
 #include <QVariant>
 #include <QString>
 #include <QHash>
+#include <QJsonValue>
 
 #include "SEnumMeta.h"
 
@@ -10,55 +11,6 @@ class SPropertyManager;
 
 class SProperty {
 public:
-	enum EType {
-		kStringType = 0,
-		kTextType,
-		kIntegerType,
-		kDoubleType,
-		kBoolType,
-		kDateType,
-		kTimeType,
-		kDateTimeType,
-		kComboType,
-		kFlagType,
-		kReferenceType,
-		kTableFoldType,
-		kDependSelectorType,
-	};
-
-private:
-	static SEnumMeta& TypeMeta() {
-		static SEnumMeta mt = SEnumMeta()
-			.Add(kStringType, QLatin1String("String"), QObject::tr("字符串"))
-			.Add(kTextType, QLatin1String("Text"), QObject::tr("文本段"))
-			.Add(kIntegerType, QLatin1String("Integer"), QObject::tr("整型"))
-			.Add(kDoubleType, QLatin1String("Double"), QObject::tr("浮点型"))
-			.Add(kBoolType, QLatin1String("Bool"), QObject::tr("布尔"))
-			.Add(kDateType, QLatin1String("Date"), QObject::tr("日期"))
-			.Add(kTimeType, QLatin1String("Time"), QObject::tr("时间"))
-			.Add(kDateTimeType, QLatin1String("DateTime"), QObject::tr("日期时间"))
-			.Add(kComboType, QLatin1String("Combo"), QObject::tr("下拉选择"))
-			.Add(kFlagType, QLatin1String("Flag"), QObject::tr("标志位"))
-			.Add(kReferenceType, QLatin1String("Reference"), QObject::tr("外键引用"))
-			.Add(kTableFoldType, QLatin1String("TableFold"), QObject::tr("表聚合"))
-			.Add(kDependSelectorType, QLatin1String("DependSelector"), QObject::tr("依赖选择"))
-			;
-		return mt;
-	}
-
-public:
-	static QLatin1String TypeName(EType type) {
-		return TypeMeta().Value2Name(type);
-	}
-	
-	static QString TypeTitle(EType type) {
-		return TypeMeta().Value2Title(type);
-	}
-
-	static int TypeValue(QLatin1String name) {
-		return TypeMeta().Name2Value(name);
-	}
-
 	enum ERole {
 		kNameRole = 0,
 		kTitleRole,
@@ -68,10 +20,7 @@ public:
 		kUniqueRole,
 
 		kValueRole,
-		kTypeRole,
-		kDefaultRole,
 		kConstraintRole,
-		kEnableCondRole,
 	};
 
 private:
@@ -84,10 +33,7 @@ private:
 			.Add(kReadOnlyRole, QLatin1String("ReadOnly"), QObject::tr("只读"))
 			.Add(kUniqueRole, QLatin1String("Unique"), QObject::tr("唯一"))
 			.Add(kValueRole, QLatin1String("Value"), QObject::tr("值"))
-			.Add(kTypeRole, QLatin1String("Type"), QObject::tr("类型"))
-			.Add(kDefaultRole, QLatin1String("Default"), QObject::tr("默认值"))
 			.Add(kConstraintRole, QLatin1String("Constraint"), QObject::tr("约束"))
-			.Add(kEnableCondRole, QLatin1String("EnableCond"), QObject::tr("启用条件"))
 			;
 		return mt;
 	}
@@ -114,8 +60,9 @@ public:
 	void SetValue(QVariant value) { value_ = value; }
 	bool ChangeValue(QVariant value);
 
-	int GetValueType() const { return value_.userType(); }
-	QString GetValueDisplay() const { return value_display_; }
+	QString GetDisplayValue() const { return value_display_; }
+	QString GetStringValue() const;
+	QJsonValue GetJsonValue() const;
 
 	bool IsDirty() const;
 	void ClearDirty();

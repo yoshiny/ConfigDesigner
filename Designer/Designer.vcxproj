@@ -116,7 +116,7 @@
     <ClCompile Include="SPropertyManager.cpp" />
     <ClCompile Include="SSchema.cpp" />
     <ClCompile Include="SSheet.cpp" />
-    <ClCompile Include="SValue.cpp" />
+    <ClCompile Include="SConstraint.cpp" />
     <ClCompile Include="SWorkspace.cpp" />
     <QtRcc Include="SMainWindow.qrc" />
     <QtUic Include="SMainWindow.ui" />
@@ -140,7 +140,7 @@
     <QtMoc Include="SPropertyManager.h" />
     <ClInclude Include="SSchema.h" />
     <ClInclude Include="SSheet.h" />
-    <ClInclude Include="SValue.h" />
+    <ClInclude Include="SConstraint.h" />
     <ClInclude Include="SWorkspace.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
