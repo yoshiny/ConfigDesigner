@@ -94,9 +94,9 @@ bool SSchema::Save() {
 
 	QJsonObject jo_root;
 	jo_root[QLatin1String("Guid")] = GetGuid();
-	jo_root[QLatin1String("Name")] = name_->GetJsonValue();
-	jo_root[QLatin1String("Title")] = title_->GetJsonValue();
-	jo_root[QLatin1String("Desc")] = desc_->GetJsonValue();
+	jo_root[QLatin1String("Name")] = name_->GetStringValue();
+	jo_root[QLatin1String("Title")] = title_->GetStringValue();
+	jo_root[QLatin1String("Desc")] = desc_->GetStringValue();
 
 	QJsonArray ja_fields;
 	for (auto field : field_list_) {

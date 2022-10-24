@@ -8,11 +8,8 @@ SField::SField(SSchema *schema)
 {
 	auto &prop_manager = GetPropertyManager();
 	for (auto role : GetFieldPropertyRoles()) {
-		AddProperty(prop_manager.AssignProperty(role));
+		AddProperty(prop_manager.AssignProperty(role, SProperty::kStringType));
 	}
-
-	ChangePropertyValue(SProperty::kReadOnlyRole, false);
-	ChangePropertyValue(SProperty::kUniqueRole, false);
 }
 
 SField::~SField() {
@@ -31,7 +28,10 @@ const QList<SProperty::ERole>& SField::GetFieldPropertyRoles() {
 					, SProperty::kDescRole
 					, SProperty::kReadOnlyRole
 					, SProperty::kUniqueRole
+					, SProperty::kTypeRole
+					, SProperty::kDefaultRole
 					, SProperty::kConstraintRole
+					, SProperty::kEnableCondRole
 	};
 	return roles;
 }
@@ -42,6 +42,11 @@ SPropertyManager & SField::GetPropertyManager() const {
 
 SProperty * SField::GetProperty(SProperty::ERole role) const {
 	return properties_.value(role, nullptr);
+}
+
+SProperty::EType SField::GetPropertyType(SProperty::ERole role) const {
+	auto prop = properties_.value(role, nullptr);
+	return prop ? prop->GetType() : SProperty::kStringType;
 }
 
 QVariant SField::GetPropertyValue(SProperty::ERole role) const {
@@ -62,10 +67,6 @@ QString SField::GetPropertyStringValue(SProperty::ERole role) const {
 QJsonValue SField::GetPropertyJsonValue(SProperty::ERole role) const {
 	auto prop = properties_.value(role, nullptr);
 	return prop ? prop->GetJsonValue() : QString();
-}
-
-SConstraint::EConstraintType SField::GetConstraintType() const {
-	return SConstraint::kStringType;
 }
 
 bool SField::ChangePropertyValue(SProperty::ERole role, QVariant value) {

@@ -4,9 +4,10 @@
 #include "SPropertyManager.h"
 #include "SApplication.h"
 
-SProperty::SProperty(SPropertyManager *prop_manager, ERole role)
+SProperty::SProperty(SPropertyManager *prop_manager, ERole prop_role, EType prop_type)
 	: prop_manager_(prop_manager)
-	, role_(role)
+	, role_(prop_role)
+	, type_(prop_type)
 {}
 
 bool SProperty::ChangeValue(QVariant value) {
@@ -18,11 +19,11 @@ bool SProperty::IsDirty() const {
 }
 
 QString SProperty::GetStringValue() const {
-	return QVariant2QString(value_);
+	return value_.toString();
 }
 
 QJsonValue SProperty::GetJsonValue() const {
-	return QVariant2QJsonValue(value_);
+	return QJsonValue();
 }
 
 void SProperty::ClearDirty() {

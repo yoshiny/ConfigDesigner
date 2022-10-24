@@ -3,77 +3,26 @@
 #include <QVariant>
 #include <QString>
 #include <QDateTime>
+#include <QList>
+#include <QHash>
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
 
-#include "SEnumMeta.h"
+#include "SProperty.h"
 
-struct SConstraint {
-	enum EConstraintType {
-		kStringType = 0,
-		kTextType,
-		kIntegerType,
-		kDoubleType,
-		kBoolType,
-		kDateType,
-		kTimeType,
-		kDateTimeType,
-		kComboType,
-		kFlagType,
-		kReferenceType,
-		kDependSelectorType,
-	};
-
-	static QLatin1String ConstraintTypeName(EConstraintType type) {
-		return ConstraintTypeMeta().Value2Name(type);
-	}
-
-	static QString ConstraintTypeTitle(EConstraintType type) {
-		return ConstraintTypeMeta().Value2Title(type);
-	}
-
-	static int ConstraintTypeValue(QLatin1String name) {
-		return ConstraintTypeMeta().Name2Value(name);
-	}
-
-	// 从QJsonValue中创建具体约束对象
-	static QVariant QJsonValue2SConstraint(QJsonValue value);
-
-	// 将具体值根据约束类型转化为QJsonValue
-	static QJsonValue QVariant2QJsonValue(QVariant variant, EConstraintType type);
-
-	// 从QJsonValue中根据约束类型创建具体值
-	static QVariant QJsonValue2QVariant(QJsonValue value, EConstraintType type);
-
-private:
-	static SEnumMeta& ConstraintTypeMeta() {
-		static SEnumMeta mt = SEnumMeta()
-			.Add(kStringType, QLatin1String("String"), QObject::tr("字符串"))
-			.Add(kTextType, QLatin1String("Text"), QObject::tr("文本段"))
-			.Add(kIntegerType, QLatin1String("Integer"), QObject::tr("整型"))
-			.Add(kDoubleType, QLatin1String("Double"), QObject::tr("浮点型"))
-			.Add(kBoolType, QLatin1String("Bool"), QObject::tr("布尔"))
-			.Add(kDateType, QLatin1String("Date"), QObject::tr("日期"))
-			.Add(kTimeType, QLatin1String("Time"), QObject::tr("时间"))
-			.Add(kDateTimeType, QLatin1String("DateTime"), QObject::tr("日期时间"))
-			.Add(kComboType, QLatin1String("Combo"), QObject::tr("下拉选择"))
-			.Add(kFlagType, QLatin1String("Flag"), QObject::tr("标志位"))
-			.Add(kReferenceType, QLatin1String("Reference"), QObject::tr("外键引用"))
-			.Add(kDependSelectorType, QLatin1String("DependSelector"), QObject::tr("依赖选择"))
-			;
-		return mt;
-	}
+struct STypeParam {
+	static QVariant QJsonValue2STypeParam(SProperty::EType type, QJsonValue value);
 };
 
 QJsonValue QVariant2QJsonValue(QVariant variant);
-QString QVariant2QString(QVariant variant);
+QVariant QString2QVariant(SProperty::EType type, QString value);
 
 template <typename T>
-struct SConstraintBasic {
+struct STypeParamBasic {
 	// 注册类型元数据
-	SConstraintBasic() {
+	STypeParamBasic() {
 		static int _reg = []() {
 			int reg = qRegisterMetaType<T>();
 			bool suc = QMetaType::registerComparators<T>();
@@ -117,39 +66,111 @@ struct SConstraintBasic {
 //////////////////////////////////////////////////////////////////////////
 // 约束值定义
 //////////////////////////////////////////////////////////////////////////
-struct SIntegerConstraint : public SConstraintBasic<SIntegerConstraint>
+struct SComboParam : public STypeParamBasic<SComboParam>
 {
-	static constexpr SConstraint::EConstraintType type_{SConstraint::kIntegerType};
-	qlonglong default_{ 0 };
-	qlonglong min_{ 0 };
-	qlonglong max_{ 0 };
+	bool multi_{ false };
+	QList<QPair<QString, QString>> pair_list_;
 
-	static SIntegerConstraint FromJsonValue(QJsonValue jv) {
-		SIntegerConstraint ic;
+	static SComboParam FromJsonValue(QJsonValue jv) {
+		SComboParam param;
 		if (QJsonObject jo = jv.toObject(); !jo.isEmpty()) {
-			ic.default_ = jo[QLatin1String("default")].toString().toLongLong();
-			ic.min_ = jo[QLatin1String("min")].toString().toLongLong();
-			ic.max_ = jo[QLatin1String("max")].toString().toLongLong();
+			param.multi_ = jo[QLatin1String("multi")].toBool();
+			if (QJsonArray ja_pairs = jo[QLatin1String("pairs")].toArray(); !ja_pairs.isEmpty()) {
+				for (auto it = ja_pairs.constBegin(); it != ja_pairs.constEnd(); ++it) {
+					if (QJsonObject jo_pair = it->toObject(); !jo_pair.isEmpty()) {
+						QString key = jo_pair[QLatin1String("key")].toString();
+						QString val = jo_pair[QLatin1String("val")].toString();
+						if (!key.isEmpty()) {
+							param.pair_list_.push_back(QPair<QString, QString>(key, val));
+						}
+					}
+				}
+			}
 		}
-		return ic;
+		return param;
 	}
 
 	QString ToString() const {
-		if (min_ == max_) {
-			return QObject::tr("默认值：%1").arg(default_);
-		} else {
-			return QObject::tr("默认值：%1，最小值：%2，最大值：%3").arg(default_).arg(min_).arg(max_);
-		}
+		return QString();
 	}
 
 	QJsonValue ToJsonValue() const {
+		QJsonArray ja;
+		for (auto it = pair_list_.constBegin(); it != pair_list_.constEnd(); ++it) {
+			ja.append(QJsonObject{{QLatin1String("key"), it->first}, {QLatin1String("val"), it->second} });
+		}
 		QJsonObject jo{
-			{QLatin1String("type"), type_},
-			{QLatin1String("default"), QString::number(default_)},
-			{QLatin1String("min"), QString::number(min_)},
-			{QLatin1String("max"), QString::number(max_)},
+			{QLatin1String("multi"), multi_},
+			{QLatin1String("pairs"), ja}
 		};
 		return jo;
 	}
 };
-Q_DECLARE_METATYPE(SIntegerConstraint)
+Q_DECLARE_METATYPE(SComboParam)
+
+struct SFlagParam : public STypeParamBasic<SFlagParam>
+{
+	QList<QPair<QString, qulonglong>> pair_list_;
+
+	static SFlagParam FromJsonValue(QJsonValue jv) {
+		SFlagParam param;
+		if (QJsonArray ja = jv.toArray(); !ja.isEmpty()) {
+			for (auto it = ja.constBegin(); it != ja.constEnd(); ++it) {
+				QJsonObject jo = it->toObject();
+				QString key = jo[QLatin1String("key")].toString();
+				qulonglong val = jo[QLatin1String("val")].toString().toULongLong(nullptr, 16);
+				param.pair_list_.append(QPair<QString, qulonglong>(key, val));
+			}
+		}
+		return param;
+	}
+
+	QString ToString() const {
+		return QString();
+	}
+
+	QJsonValue ToJsonValue() const {
+		QJsonArray ja;
+		for (auto it = pair_list_.constBegin(); it != pair_list_.constEnd(); ++it) {
+			ja.append(QJsonObject{{QLatin1String("key"), it->first}, {QLatin1String("val"), QString("0x%1").arg(it->second, 8, 16, QLatin1Char('0'))}});
+		}
+		return ja;
+	}
+};
+Q_DECLARE_METATYPE(SFlagParam)
+
+struct SReferenceParam : public STypeParamBasic<SReferenceParam>
+{
+	bool multi_{ false };
+	QString config_;
+	QString sheet_;
+	QString field_;
+	QString display_;
+
+	static SReferenceParam FromJsonValue(QJsonValue jv) {
+		SReferenceParam param;
+		QJsonObject jo = jv.toObject();
+		param.multi_ = jo[QLatin1String("multi")].toBool();
+		param.config_ = jo[QLatin1String("config")].toString();
+		param.sheet_ = jo[QLatin1String("sheet")].toString();
+		param.field_ = jo[QLatin1String("field")].toString();
+		param.display_ = jo[QLatin1String("display")].toString();
+		return param;
+	}
+
+	QString ToString() const {
+		return QString();
+	}
+
+	QJsonValue ToJsonValue() const {
+		QJsonObject jo{
+			{QLatin1String("multi"), multi_},
+			{QLatin1String("config"), config_},
+			{QLatin1String("sheet"), sheet_},
+			{QLatin1String("field"), field_},
+			{QLatin1String("display"), display_},
+		};
+		return jo;
+	}
+};
+Q_DECLARE_METATYPE(SReferenceParam)

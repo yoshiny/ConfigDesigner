@@ -14,7 +14,7 @@ public:
 	~SPropertyManager();
 
 public:
-	SProperty *AssignProperty(SProperty::ERole prop_role);
+	SProperty *AssignProperty(SProperty::ERole prop_role, SProperty::EType prop_type = SProperty::kStringType);
 	void RecoverProperty(SProperty *prop);
 	void RecoverProperty(std::initializer_list<SProperty*> list);
 

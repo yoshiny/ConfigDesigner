@@ -10,8 +10,8 @@ SPropertyManager::~SPropertyManager() {
 	back_values_.clear();
 }
 
-SProperty * SPropertyManager::AssignProperty(SProperty::ERole prop_role) {
-	SProperty *prop = new SProperty(this, prop_role);
+SProperty * SPropertyManager::AssignProperty(SProperty::ERole prop_role, SProperty::EType prop_type) {
+	SProperty *prop = new SProperty(this, prop_role, prop_type);
 	properties_.insert(prop);
 	return prop;
 }
